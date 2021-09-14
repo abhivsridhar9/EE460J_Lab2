@@ -57,9 +57,10 @@ def q4():
 
     model_ridge = Ridge(10)
     model_ridge.fit(X_train, y)
-    l2_pred = model_ridge.predict(X_train)
-    #solution = pd.DataFrame({"id": test.Id, "SalePrice": np.expm1(l2_pred)})
-    #solution.to_csv("Ridge_Regression.csv", index=False)
+    l2_pred = model_ridge.predict(X_test)
+    l2_pred_train = model_ridge.predict(X_train)
+    solution = pd.DataFrame({"id": test.Id, "SalePrice": np.expm1(l2_pred)})
+    solution.to_csv("Ridge_Regression.csv", index=False)
     #print("l2 pred ", np.expm1(l2_pred))
 
     #Ridge V Lasso CV
@@ -75,12 +76,17 @@ def q4():
     print("Ridge Score:",cv_ridge.min())
 
 
-    model_lasso = LassoCV(alphas=[1, 0.1, 0.001, 0.0005]).fit(X_train, y)
-    l1_pred = model_lasso.predict(X_train)
-    print(l1_pred)
+    model_lasso = LassoCV(alphas=[1, 0.1, 0.001, 0.0005])
+    model_lasso.fit(X_train,y)
+    l1_pred = model_lasso.predict(X_test)
+    l1_pred_train = model_ridge.predict(X_train)
+    print(len(l1_pred_train))
+    print(len(l1_pred))
+    #print(l1_pred)
+    #print(train.Id)
     #print(test.Id)
-    #solution = pd.DataFrame({"id": test.Id, "SalePrice": l1_pred})
-    #solution.to_csv("Lasso_Regression.csv", index=False)
+    solution = pd.DataFrame({"id": test.Id, "SalePrice": np.expm1(l1_pred)})
+    solution.to_csv("Lasso_Regression.csv", index=False)
     #print("l1 pred ", np.expm1(l1_pred))
     print("Lasso Score",rmse_cv(model_lasso).mean())
 
@@ -132,19 +138,31 @@ def q4():
     all_data = all_data.fillna(all_data.mean())
 
     # creating matrices for sklearn:
+
     X_train = all_data[:train.shape[0]]
-    X_train.insert(0, "l1_pred", l1_pred)
-    X_train.insert(0, "l2_pred", l2_pred)
+    X_train.insert(0, "l1_out", l1_pred_train)
+    X_train.insert(0, "l2_out", l2_pred_train)
     #print(X_train.size, l1_pred.size, l2_pred.size)
     #print(X_train)
     X_test = all_data[train.shape[0]:]
+    X_test.insert(0, "l1_out", l1_pred)
+    X_test.insert(0, "l2_out", l2_pred)
     y = train.SalePrice
+    #estimator = [('l1', model_ridge), ('l2', model_lasso)]
 
     alphas = [.05, 0.05, 0.1, 0.3, 1, 3, 5, 10, 15, 30, 50, 75]
     cv_ridge = [rmse_cv(Ridge(alpha=alpha)).mean()
                 for alpha in alphas]
     cv_ridge = pd.Series(cv_ridge, index=alphas)
     print("Ridge Regression w Models as Output Score:", cv_ridge.min())
+    Ridge_w_outcome = Ridge(5)
+    Ridge_w_outcome.fit(X_train,y)
+    ridge_w_outcome_predictions = Ridge_w_outcome.predict(X_test)
+    solution = pd.DataFrame({"id": test.Id, "SalePrice": np.expm1(ridge_w_outcome_predictions)})
+    solution.to_csv("Ridge_with_outcomes_Regression_v2.csv", index=False)
+    #print(cv_ridge)
+
+
 
 
     #XGBOOST
@@ -192,9 +210,9 @@ def q4():
     model_xgb = xgb.XGBRegressor(n_estimators=360, max_depth=2, learning_rate=0.1)  # the params were tuned using xgb.cv
     model_xgb.fit(X_train, y)
     xgb_preds = np.expm1(model_xgb.predict(X_test))
+    print(xgb_preds)
     #print(len(xgb_preds))
-    print(len(test.Id))
-
+    #print(len(test.Id))
     #print("RMSE : % f" % (rmse))
     lasso_preds = np.expm1(model_lasso.predict(X_test))
 
