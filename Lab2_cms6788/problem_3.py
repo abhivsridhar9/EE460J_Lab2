@@ -30,17 +30,19 @@ freq_year = input("Year:")
 fem_frequency = 0
 male_frequency = 0
 relative_frequency = 0
+count = 0
 filename = "../Names/yob"+str(freq_year)+".txt"
 df = pd.read_csv(filename, index_col=None, header=None)
 for name in df.itertuples():
+    count = count + name[3]
     if(name[1] == input_name):
         if(name[2] == 'M'):
             male_frequency = male_frequency + name[3]
         else:
             fem_frequency = fem_frequency + name[3]
 print("Name:", input_name)
-print("Male Frequency:", male_frequency)
-print("Female Frequency:", fem_frequency)
+print("Male Frequency:", male_frequency/count)
+print("Female Frequency:", fem_frequency/count)
 relative_frequency = male_frequency - fem_frequency
 print("Relative Frequency:", relative_frequency)
 
@@ -121,5 +123,6 @@ for name in frequency_dict.keys():
             break
 
 print(final_list)
+print(len(final_list))
 
 

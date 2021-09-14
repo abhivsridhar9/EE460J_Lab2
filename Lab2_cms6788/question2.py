@@ -9,8 +9,9 @@ sns.scatterplot(data=df2, x='0', y='1')
 
 cov_matrix = np.cov(df2, rowvar=False)
 eig_vals , q = np.linalg.eig(cov_matrix)
-print(q)
+print("Q",q)
 q_inv = q.T
+print("Qinv", q_inv)
 
 
 print("cov matrix:", cov_matrix)
@@ -33,8 +34,8 @@ print("(-1,1) transformed: ", y_outlier1)
 print("(5.5,5) transformed: ", y_outlier2)
 plot.figure()
 plot.title("NEW DATA")
-plot.xlim(-10,10)
-plot.ylim(-10,10)
+plot.xlim(-20,20)
+plot.ylim(-20,20)
 #plot.axes().set_aspect('auto')
 #print(y[0,:].tolist()[0])
 #sns.scatterplot(data=y, x=y[0,:].tolist()[0], y = y[1,:].tolist()[0])
