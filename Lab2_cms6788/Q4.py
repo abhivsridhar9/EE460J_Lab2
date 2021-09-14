@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 from scipy.stats import skew
 from scipy.stats.stats import pearsonr
 def q4():
-    #Preprocessing
+    #PREPROCESSING
+
     train = pd.read_csv("../input/train.csv")
     test = pd.read_csv("../input/test.csv")
     train.head()
@@ -48,9 +49,6 @@ def q4():
         return(rmse)
 
 
-
-
-
     #Part1
     ridge_regression = rmse_cv(Ridge(alpha= .1)).mean()
     print("a = .1 score:", ridge_regression)
@@ -61,30 +59,23 @@ def q4():
     l2_pred_train = model_ridge.predict(X_train)
     solution = pd.DataFrame({"id": test.Id, "SalePrice": np.expm1(l2_pred)})
     solution.to_csv("Ridge_Regression.csv", index=False)
-    #print("l2 pred ", np.expm1(l2_pred))
 
-    #Ridge V Lasso CV
+
+    #Ridge Model
     alphas = [0.05, 0.1, 0.3, 1, 3, 5, 10, 15, 30, 50, 75]
     cv_ridge = [rmse_cv(Ridge(alpha=alpha)).mean()
                 for alpha in alphas]
     cv_ridge = pd.Series(cv_ridge, index=alphas)
-    #print(cv_ridge)
-    #cv_ridge.plot(title="Validation - Just Do It")
-    #plt.xlabel("alpha")
-    #plt.ylabel("rmse")
-    #plt.show()
+
     print("Ridge Score:",cv_ridge.min())
 
-
+    #Lasso Model
     model_lasso = LassoCV(alphas=[1, 0.1, 0.001, 0.0005])
     model_lasso.fit(X_train,y)
     l1_pred = model_lasso.predict(X_test)
     l1_pred_train = model_ridge.predict(X_train)
     print(len(l1_pred_train))
     print(len(l1_pred))
-    #print(l1_pred)
-    #print(train.Id)
-    #print(test.Id)
     solution = pd.DataFrame({"id": test.Id, "SalePrice": np.expm1(l1_pred)})
     solution.to_csv("Lasso_Regression.csv", index=False)
     #print("l1 pred ", np.expm1(l1_pred))
@@ -103,10 +94,6 @@ def q4():
     plt.xlabel("Alpha")
     plt.ylabel("L0 Norm")
     plt.show()
-
-    #print(coef)
-    #print("Lasso picked " + str(sum(coef != 0)) + " variables and eliminated the other " + str(
-    #    sum(coef == 0)) + " variables")
 
 
     #ADDING OUTCOME AS FEATURE
@@ -138,17 +125,14 @@ def q4():
     all_data = all_data.fillna(all_data.mean())
 
     # creating matrices for sklearn:
-
+    #Add outcomes to data
     X_train = all_data[:train.shape[0]]
     X_train.insert(0, "l1_out", l1_pred_train)
     X_train.insert(0, "l2_out", l2_pred_train)
-    #print(X_train.size, l1_pred.size, l2_pred.size)
-    #print(X_train)
     X_test = all_data[train.shape[0]:]
     X_test.insert(0, "l1_out", l1_pred)
     X_test.insert(0, "l2_out", l2_pred)
     y = train.SalePrice
-    #estimator = [('l1', model_ridge), ('l2', model_lasso)]
 
     alphas = [.05, 0.05, 0.1, 0.3, 1, 3, 5, 10, 15, 30, 50, 75]
     cv_ridge = [rmse_cv(Ridge(alpha=alpha)).mean()
@@ -160,14 +144,12 @@ def q4():
     ridge_w_outcome_predictions = Ridge_w_outcome.predict(X_test)
     solution = pd.DataFrame({"id": test.Id, "SalePrice": np.expm1(ridge_w_outcome_predictions)})
     solution.to_csv("Ridge_with_outcomes_Regression_v2.csv", index=False)
-    #print(cv_ridge)
 
 
 
 
     #XGBOOST
     import xgboost as xgb
-    from sklearn.metrics import mean_squared_error as MSE
 
     # Preprocessing
     train = pd.read_csv("../input/train.csv")
@@ -206,20 +188,9 @@ def q4():
 
     params = {"max_depth": 1, "eta": 0.1}
     model = xgb.cv(params, dtrain, num_boost_round=500, early_stopping_rounds=100)
-
-    model_xgb = xgb.XGBRegressor(n_estimators=360, max_depth=2, learning_rate=0.1)  # the params were tuned using xgb.cv
+    model_xgb = xgb.XGBRegressor(n_estimators=360, max_depth=1, learning_rate=0.1)  # the params were tuned using xgb.cv
     model_xgb.fit(X_train, y)
     xgb_preds = np.expm1(model_xgb.predict(X_test))
-    print(xgb_preds)
-    #print(len(xgb_preds))
-    #print(len(test.Id))
-    #print("RMSE : % f" % (rmse))
-    lasso_preds = np.expm1(model_lasso.predict(X_test))
-
-    #predictions = pd.DataFrame({"xgb": xgb_preds, "lasso": lasso_preds})
-    #predictions.plot(x="xgb", y="lasso", kind="scatter")
-    #preds = 0.7 * lasso_preds + 0.3 * xgb_preds
-
     solution = pd.DataFrame({"id": test.Id, "SalePrice": xgb_preds})
     solution.to_csv("XGB_Regression.csv", index=False)
 
