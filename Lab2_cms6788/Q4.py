@@ -192,7 +192,7 @@ def q4():
     model_xgb = xgb.XGBRegressor(n_estimators=360, max_depth=2, learning_rate=0.1)  # the params were tuned using xgb.cv
     model_xgb.fit(X_train, y)
     xgb_preds = np.expm1(model_xgb.predict(X_test))
-    print(len(xgb_preds))
+    #print(len(xgb_preds))
     print(len(test.Id))
 
     #print("RMSE : % f" % (rmse))
