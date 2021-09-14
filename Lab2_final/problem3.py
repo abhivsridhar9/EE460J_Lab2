@@ -50,8 +50,7 @@ for name in df.itertuples():
 print("Name:", input_name)
 print("Male Frequency:", male_frequency/count)
 print("Female Frequency:", fem_frequency/count)
-relative_frequency = male_frequency - fem_frequency
-print("Relative Frequency:", relative_frequency)
+
 
 
 # part d
@@ -117,19 +116,16 @@ for name in frequency_dict.keys():
     for year in name_list:
         sign = ""
         relative_frequency = year[1] - year[2]
-        #if name =="Connor":
-         #   print("rel:", relative_frequency)
-        #print("year1:", year[1], "year2", year[2])
         if(relative_frequency > 0):
             sign = "positive"
         else:
             sign = "negative"
         if(initial_sign != sign):
-            #print(name)
+
             final_list.append(name)
             break
 
 print(final_list)
-print(len(final_list))
+
 
 
